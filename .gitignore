@@ -9,3 +9,5 @@
 *.o
 *.dep
 
+goil
+goil-debug
