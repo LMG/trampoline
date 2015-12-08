@@ -308,8 +308,12 @@ if exists OS::TIMINGPROTECTION default (false) then
 %
 SOURCES += tpl_as_timing_protec.c tpl_as_protec_hook.c%
 end if
-%
 
+foreach file in KERNEL_MAP["kernel_control"]::FILE do
+%
+SOURCES += % !file::VALUE
+end foreach
+%
 #############################################################################
 # SYSTEM CALL FILE LIST
 #############################################################################

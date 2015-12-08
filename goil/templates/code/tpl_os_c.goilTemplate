@@ -18,6 +18,7 @@
  */
 
 #include "tpl_os.h"
+#include "tpl_control.h"
 %
 
 foreach api in APIUSED do

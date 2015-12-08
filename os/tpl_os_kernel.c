@@ -55,6 +55,8 @@
 #define OS_START_SEC_CONST_UNSPECIFIED
 #include "tpl_memmap.h"
 
+#include "tpl_control.h"
+
 /**
  * @def INVALID_PROC
  *
@@ -732,6 +734,8 @@ FUNC(void, OS_CODE) tpl_start(CORE_ID_OR_VOID(core_id))
 #if NUMBER_OF_CORES > 1
     TPL_KERN_REF(kern).elected->state = (tpl_proc_state)READY;
 #endif
+
+    compute_NEFT((void*) &proc.id, NULL, NULL, START_TASK);
   }
 
   DOW_DO(print_kern("after tpl_start"));

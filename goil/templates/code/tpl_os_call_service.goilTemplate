@@ -12,8 +12,31 @@ FUNC(% !exists sc::RETURN_TYPE default("void") %, % !api::ID_PREFIX %_CODE) % !e
     end if %
 {
   %
-  if exists sc::RETURN_TYPE then
-    %return %
+  let argCount := 3
+  if exists sc::ARGUMENT  then
+    let argCount := 3 - [sc::ARGUMENT length]
+  end if
+  %
+  slow_task(%
+    foreach arg in exists sc::ARGUMENT  default (emptylist) do
+       % (void*) &% !arg::NAME 
+    between
+      %,%
+    after
+      %,%
+    end foreach 
+    loop dummy from 1 to argCount
+    do
+      %NULL%
+    between
+      %,%
+    after
+      %,%
+    end loop
+    !api::ID_PREFIX %ServiceId_% !sc::NAME %);
+%
+  if exists sc::RETURN_TYPE then%
+  % !sc::RETURN_TYPE % res = %
   end if
   !sc::KERNEL %(%
   foreach arg in exists sc::ARGUMENT default (emptylist) do
@@ -21,4 +44,26 @@ FUNC(% !exists sc::RETURN_TYPE default("void") %, % !api::ID_PREFIX %_CODE) % !e
   between %, %
   end foreach
   %);
+
+  compute_NEFT(%
+    foreach arg in exists sc::ARGUMENT  default (emptylist) do 
+       % (void*) &% !arg::NAME 
+    between
+      %,%
+    after
+      %,%
+    end foreach 
+    loop dummy from 1 to argCount
+    do
+      %NULL%
+    between
+      %,%
+    after
+      %,%
+    end loop
+    !api::ID_PREFIX %ServiceId_% !sc::NAME %);
+  
+  %if exists sc::RETURN_TYPE then%
+  return res;
+  %end if%
 }

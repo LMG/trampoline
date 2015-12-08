@@ -20,4 +20,8 @@ CPU kernel {
     PATH = "autosar";
     FILE = "tpl_as_action.c";
   };
+  KERNEL kernel_control {
+    PATH = "control";
+    FILE = "tpl_control.c";
+  };
 };
