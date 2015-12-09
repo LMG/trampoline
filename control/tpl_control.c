@@ -72,27 +72,20 @@ FUNC(StatusType, OS_CODE) compute_NEFT(
   void* param3,
   CONST(int, AUTOMATIC) service_id)
 {
-  DOW_DO(printf("Received transition %d from task %d at time %u\n", service_id, tpl_kern.running_id, (unsigned int)tpl_get_local_current_date());)
+  DOW_DO(printf("Received transition %d from task %d at time %u\n",
+    service_id, 
+    tpl_kern.running_id, 
+    (unsigned int)tpl_get_local_current_date());)
   
   if(tpl_kern.running_id < TASK_NUM)//if it's not the IDLE task
   {
-    //we update the state (in the model) of the calling task and compute the EFT for all outgoing transitions of the new state
+    //We compute the EFT for all outgoing transitions of the new state
     int post;
     for(post=0; post<MAX_POSTS_NUM; post++)
     {
       transition *outgoing_transition = &node[tpl_kern.running_id][current_node[tpl_kern.running_id]][post];
-      DOW_DO(printf("Testing transition %d to state %d\n tpl_kern.running_id: %d, current_node[tpl_kern.running_id] %d\n", post, outgoing_transition->target, tpl_kern.running_id, current_node[tpl_kern.running_id]);)
-      if(outgoing_transition->sc == service_id && tpl_get_local_current_date() >= outgoing_transition->eft && (tpl_get_local_current_date() <= outgoing_transition->lft || outgoing_transition->lft == -1))
-      {
-        DOW_DO(printf("Taking transition %d to state %d\n tpl_kern.running_id: %d, current_node[tpl_kern.running_id] %d\n", post, outgoing_transition->target, tpl_kern.running_id, current_node[tpl_kern.running_id]);)
-        current_node[tpl_kern.running_id] = outgoing_transition->target;
-        break;
-      }
-    }
-    for(post=0; post<MAX_POSTS_NUM; post++)
-    {
-      transition *outgoing_transition = &node[tpl_kern.running_id][current_node[tpl_kern.running_id]][post];
       DOW_DO(printf("Old NEFT = %u\n", (unsigned int)outgoing_transition->eft);)
+
       outgoing_transition->eft = tpl_get_local_current_date() + outgoing_transition->lower_bound;
       if(outgoing_transition->upper_bound != -1)//-1 means infinite
       {
@@ -102,7 +95,10 @@ FUNC(StatusType, OS_CODE) compute_NEFT(
       {
         outgoing_transition->lft = -1; //hopefully this is the max value of tpl_time
       }
-      DOW_DO(printf("New NEFT = %u, (sc = %d, post=%d)\n", (unsigned int)outgoing_transition->eft, outgoing_transition->sc, post);)
+      DOW_DO(printf("New NEFT = %u, (sc = %d, post=%d)\n",
+        (unsigned int)outgoing_transition->eft, 
+        outgoing_transition->sc, 
+        post);)
     }
   }
 
@@ -115,15 +111,63 @@ FUNC(StatusType, OS_CODE) slow_task(
   CONST(int, AUTOMATIC) service_id)
 {
   int post;
-  for(post=0; post<MAX_POSTS_NUM; post++)
+  transition* outgoing_transition = get_outgoing_transition(
+    param1,
+    param2,
+    param3,
+    service_id);
+
+  DOW_DO(printf("Slowing task %d from %u to %u, (sc = %d, post = %d, %d)\n",
+    tpl_kern.running_id,
+    (unsigned int)tpl_get_local_current_date(),
+    (unsigned int)outgoing_transition->eft,
+    service_id,
+    post,
+    current_node[tpl_kern.running_id]);)
+  while ( tpl_get_local_current_date() < outgoing_transition->eft );
+  DOW_DO(printf("Slowed task %d to %u > %u (%d)\n",
+    tpl_kern.running_id,
+    (unsigned int)tpl_get_local_current_date(),
+    outgoing_transition->eft,
+    tpl_get_local_current_date() < outgoing_transition->eft );)
+
+  //then update the model
+  update_model(outgoing_transition);
+}
+
+FUNC(StatusType, OS_CODE) update_model(
+  transition* outgoing_transition)
+{
+  current_node[tpl_kern.running_id] = outgoing_transition->target;
+}
+
+FUNC(transition*, OS_CODE) get_outgoing_transition(
+  void* param1,
+  void* param2,
+  void* param3,
+  CONST(int, AUTOMATIC) service_id)
+{
+  int post;
+  transition *outgoing_transition = NULL;
+  for(post = 0; post<MAX_POSTS_NUM; post++)
   {
-    if(node[tpl_kern.running_id][current_node[tpl_kern.running_id]][post].sc == service_id)
+    DOW_DO(printf("Testing transition %d to state %d\n tpl_kern.running_id: %d, current_node[tpl_kern.running_id] %d\n",
+      post,
+      outgoing_transition->target,
+      tpl_kern.running_id,
+      current_node[tpl_kern.running_id]);)
+      outgoing_transition = &(node[tpl_kern.running_id][current_node[tpl_kern.running_id]][post]);
+    tpl_time current_time = tpl_get_local_current_date();
+    if(outgoing_transition->sc == service_id &&
+     /*outgoing_transition->param1 == param1 &&* They are at NULL in the model for now, so don't test.
+       outgoing_transition->param2 == param2 &&*
+       outgoing_transition->param3 == param3 &&*/
+       outgoing_transition->eft < current_time &&
+      (outgoing_transition->lft > current_time ||
+       outgoing_transition->lft == -1))
     {
-      unsigned int eft = node[tpl_kern.running_id][current_node[tpl_kern.running_id]][post].eft;
-      DOW_DO(printf("Slowing task %d from %u to %u, (sc = %d, post = %d, %d)\n", tpl_kern.running_id, (unsigned int)tpl_get_local_current_date(), (unsigned int)eft, service_id, post, current_node[tpl_kern.running_id]);)
-      while ( tpl_get_local_current_date() < eft );
-      DOW_DO(printf("Slowed task %d to %u > %u (%d)\n", tpl_kern.running_id, (unsigned int)tpl_get_local_current_date(), eft,  tpl_get_local_current_date() < eft );)
-      break;//exit the for loop
+      break;
     }
   }
+  return outgoing_transition;
 }

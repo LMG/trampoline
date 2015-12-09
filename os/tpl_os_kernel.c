@@ -735,7 +735,14 @@ FUNC(void, OS_CODE) tpl_start(CORE_ID_OR_VOID(core_id))
     TPL_KERN_REF(kern).elected->state = (tpl_proc_state)READY;
 #endif
 
-    compute_NEFT((void*) &proc.id, NULL, NULL, START_TASK);
+    if(tpl_kern.running_id < TASK_NUM)//if it's not the IDLE task
+    {
+      update_model(get_outgoing_transition(
+        (void*) &proc.id,
+        NULL,
+        NULL,
+        START_TASK));
+    }
   }
 
   DOW_DO(print_kern("after tpl_start"));
