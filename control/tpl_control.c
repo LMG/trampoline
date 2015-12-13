@@ -18,8 +18,6 @@
 #include "tpl_service_ids.h"
 #include "tpl_control_model.h"
 
-VAR(tpl_time, AUTOMATIC) NEFT[TASK_NUM] = {0, 0};//NEFT is set to 0 for all tasks
-int act = 0;
 int current_node[TASK_NUM] = {0};
 
 //TODO: Dummy function to replace tpl_get_local_current_date()
