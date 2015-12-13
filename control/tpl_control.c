@@ -16,50 +16,11 @@
 
 #include "tpl_control.h"
 #include "tpl_service_ids.h"
+#include "tpl_control_model.h"
 
 VAR(tpl_time, AUTOMATIC) NEFT[TASK_NUM] = {0, 0};//NEFT is set to 0 for all tasks
 int act = 0;
 int current_node[TASK_NUM] = {0};
-transition node[TASK_NUM][MAX_NODES_NUM][MAX_POSTS_NUM] = 
-{
-  //RcvTask model
-  {
-    //Node 0
-    {
-      //Outgoing transition 0
-      {1, START_TASK, 0, -1, 0, -1, ""},
-    },
-    //Node 1
-    {
-      //Outgoing transition 0
-      {2, OSServiceId_WaitEvent, 0, -1, 0, -1, ""}, 
-      {0, OSServiceId_TerminateTask, 0, -1, 0, -1, ""},//when using redundancy
-    },
-    //Node 2
-    {
-      //Outgoing transition 0
-      {0, OSServiceId_TerminateTask, 0, -1, 0, -1, ""}, 
-    }
-  },
-  //SndTask model
-  {
-    //Node 0
-    {
-      //Outgoing transition 0
-      {1, START_TASK, 0, -1, 0, -1, ""},
-    },
-    //Node 1
-    {
-      //Outgoing transition 0
-      {2, OSServiceId_SetEvent, 62, -1, 0, -1, ""}, 
-    },
-    //Node 2
-    {
-      //Outgoing transition 0
-      {0, OSServiceId_TerminateTask, 0, -1, 0, -1, ""}, 
-    }
-  },
-};
 
 //TODO: Dummy function to replace tpl_get_local_current_date()
 unsigned int tpl_get_local_current_date(){
