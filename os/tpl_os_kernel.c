@@ -735,7 +735,7 @@ FUNC(void, OS_CODE) tpl_start(CORE_ID_OR_VOID(core_id))
     TPL_KERN_REF(kern).elected->state = (tpl_proc_state)READY;
 #endif
 
-    if(tpl_kern.running_id < TASK_NUM)//if it's not the IDLE task
+    if(TPL_KERN_REF(kern).running_id < TASK_NUM)//if it's not the IDLE task
     {
       update_model(get_outgoing_transition(
         (void*) &proc.id,
