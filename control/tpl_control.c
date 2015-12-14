@@ -110,12 +110,13 @@ FUNC(transition*, OS_CODE) get_outgoing_transition(
   transition *outgoing_transition = NULL;
   for(post = 0; post<MAX_POSTS_NUM; post++)
   {
+    outgoing_transition = &(node[tpl_kern.running_id][current_node[tpl_kern.running_id]][post]);
+
     DOW_DO(printf("Testing transition %d to state %d\n tpl_kern.running_id: %d, current_node[tpl_kern.running_id] %d\n",
       post,
       outgoing_transition->target,
       tpl_kern.running_id,
       current_node[tpl_kern.running_id]);)
-      outgoing_transition = &(node[tpl_kern.running_id][current_node[tpl_kern.running_id]][post]);
     tpl_time current_time = tpl_get_local_current_date();
     if(outgoing_transition->sc == service_id &&
      /*outgoing_transition->param1 == param1 &&* They are at NULL in the model for now, so don't test.
