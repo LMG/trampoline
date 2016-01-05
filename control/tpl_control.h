@@ -28,9 +28,6 @@
 
 #include "tpl_dow.h"
 
-//TODO: Probably exists already
-#define TASK_NUM 2
-
 //maximum number of transitions after a given node
 #define MAX_POSTS_NUM 2
 //maximum number of nodes in a given task
@@ -72,8 +69,8 @@ FUNC(transition*, OS_CODE) get_outgoing_transition(
   void* param3,
   CONST(int, AUTOMATIC) service_id);
 
-extern transition node[TASK_NUM][MAX_NODES_NUM][MAX_POSTS_NUM];//for example: outgoing transition 2 of node 1 of task 0: nodes[0][1][2]
-extern int current_node[TASK_NUM];
+extern transition node[TASK_COUNT][MAX_NODES_NUM][MAX_POSTS_NUM];//for example: outgoing transition 2 of node 1 of task 0: node[0][1][2]
+extern int current_node[TASK_COUNT];
 
 #endif
 /* __TPL_CONTROL__ */

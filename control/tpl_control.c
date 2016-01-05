@@ -18,7 +18,7 @@
 #include "tpl_service_ids.h"
 #include "tpl_control_model.h"
 
-int current_node[TASK_NUM] = {0};
+int current_node[TASK_COUNT] = {0};
 
 FUNC(StatusType, OS_CODE) compute_NEFT(
   void* param1,
@@ -26,18 +26,13 @@ FUNC(StatusType, OS_CODE) compute_NEFT(
   void* param3,
   CONST(int, AUTOMATIC) service_id)
 {
-  DOW_DO(printf("Received transition %d from task %d at time %u\n",
-    service_id, 
-    tpl_kern.running_id, 
-    (unsigned int)tpl_get_tptimer());)
-  
-  if(tpl_kern.running_id < TASK_NUM)//if it's not the IDLE task
+  if(tpl_kern.elected_id >= 0 && tpl_kern.elected_id < TASK_COUNT)//if it's not the IDLE task
   {
     //We compute the EFT for all outgoing transitions of the new state
     int post;
     for(post=0; post<MAX_POSTS_NUM; post++)
     {
-      transition *outgoing_transition = &node[tpl_kern.running_id][current_node[tpl_kern.running_id]][post];
+      transition *outgoing_transition = &node[tpl_kern.elected_id][current_node[tpl_kern.elected_id]][post];
       DOW_DO(printf("Old NEFT = %u\n", (unsigned int)outgoing_transition->eft);)
 
       outgoing_transition->eft = tpl_get_tptimer() + outgoing_transition->lower_bound;
@@ -64,7 +59,7 @@ FUNC(StatusType, OS_CODE) slow_task(
   void* param3,
   CONST(int, AUTOMATIC) service_id)
 {
-  if(tpl_kern.running_id != -1) {
+  if(tpl_kern.elected_id >= 0 && tpl_kern.elected_id < TASK_COUNT) {
     int post;
     transition* outgoing_transition = get_outgoing_transition(
       param1,
@@ -73,15 +68,15 @@ FUNC(StatusType, OS_CODE) slow_task(
       service_id);
 
     DOW_DO(printf("Slowing task %d from %u to %u, (sc = %d, post = %d, %d)\n",
-      tpl_kern.running_id,
+      tpl_kern.elected_id,
       (unsigned int)tpl_get_tptimer(),
       (unsigned int)outgoing_transition->eft,
       service_id,
       post,
-      current_node[tpl_kern.running_id]);)
+      current_node[tpl_kern.elected_id]);)
     while ( tpl_get_tptimer() < outgoing_transition->eft );
     DOW_DO(printf("Slowed task %d to %u > %u (%d)\n",
-      tpl_kern.running_id,
+      tpl_kern.elected_id,
       (unsigned int)tpl_get_tptimer(),
       outgoing_transition->eft,
       tpl_get_tptimer() < outgoing_transition->eft );)
@@ -94,8 +89,8 @@ FUNC(StatusType, OS_CODE) slow_task(
 FUNC(StatusType, OS_CODE) update_model(
   transition* outgoing_transition)
 {
-  if(tpl_kern.running_id != -1) {
-    current_node[tpl_kern.running_id] = outgoing_transition->target;
+  if(tpl_kern.elected_id >= 0 && tpl_kern.elected_id < TASK_COUNT) {
+    current_node[tpl_kern.elected_id] = outgoing_transition->target;
   }
 }
 
@@ -105,27 +100,38 @@ FUNC(transition*, OS_CODE) get_outgoing_transition(
   void* param3,
   CONST(int, AUTOMATIC) service_id)
 {
+  DOW_DO(printf("Received transition %d from task %d at time %u\n",
+    service_id, 
+    tpl_kern.elected_id, 
+    (unsigned int)tpl_get_tptimer());)
+  
   int post;
   transition *outgoing_transition = NULL;
-  if(tpl_kern.running_id != -1) {
+  if(tpl_kern.elected_id >= 0 && tpl_kern.elected_id < TASK_COUNT) {
     for(post = 0; post<MAX_POSTS_NUM; post++)
     {
-      outgoing_transition = &(node[tpl_kern.running_id][current_node[tpl_kern.running_id]][post]);
+      outgoing_transition = &(node[tpl_kern.elected_id][current_node[tpl_kern.elected_id]][post]);
 
-      DOW_DO(printf("Testing transition %d to state %d\n tpl_kern.running_id: %d, current_node[tpl_kern.running_id] %d\n",
+      tpl_time current_time = tpl_get_tptimer();
+      DOW_DO(printf("Testing transition %d to state %d\n tpl_kern.elected_id: %d, current_node[tpl_kern.elected_id] %d\n sc %d, id %d\n eft %d, lft %d, time %d\n",
         post,
         outgoing_transition->target,
-        tpl_kern.running_id,
-        current_node[tpl_kern.running_id]);)
-      tpl_time current_time = tpl_get_tptimer();
+        tpl_kern.elected_id,
+        current_node[tpl_kern.elected_id],
+        outgoing_transition->sc,
+        service_id,
+        outgoing_transition->eft,
+        outgoing_transition->lft,
+        current_time);)
       if(outgoing_transition->sc == service_id &&
        /*outgoing_transition->param1 == param1 &&* They are at NULL in the model for now, so don't test.
          outgoing_transition->param2 == param2 &&*
          outgoing_transition->param3 == param3 &&*/
-         outgoing_transition->eft < current_time &&
-        (outgoing_transition->lft > current_time ||
+         outgoing_transition->eft - outgoing_transition->lower_bound <= current_time && //TODO: pretty stupid to have to do that. Maybe only save firing time in "compute NEFT" and compute actual time on the fly
+        (outgoing_transition->lft >= current_time ||
          outgoing_transition->lft == -1))
       {
+        DOW_DO(printf("Taking it\n");)
         break;
       }
     }

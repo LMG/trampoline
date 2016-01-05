@@ -735,13 +735,15 @@ FUNC(void, OS_CODE) tpl_start(CORE_ID_OR_VOID(core_id))
     TPL_KERN_REF(kern).elected->state = (tpl_proc_state)READY;
 #endif
 
-    if(TPL_KERN_REF(kern).running_id < TASK_NUM)//if it's not the IDLE task
+    //TODO: move to tpl_run_elected (especially if we want multi-core support)
+    if(TPL_KERN_REF(kern).elected_id != INVALID_TASK) // it's not the IDLE task
     {
       update_model(get_outgoing_transition(
         (void*) &proc.id,
         NULL,
         NULL,
         START_TASK));
+      compute_NEFT(NULL, NULL, NULL, START_TASK);
     }
   }
 
