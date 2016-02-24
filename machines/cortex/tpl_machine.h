@@ -65,6 +65,7 @@ extern unsigned long _estack;
  * on the target) for alarms and schedule tables.
  */
 FUNC(void, OS_CODE) tpl_set_systick_timer();
+FUNC(uint32, OS_CODE) tpl_get_tptimer();
 
 #endif /* TPL_MACHINE_H */
 

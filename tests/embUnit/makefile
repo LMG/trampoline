@@ -1,6 +1,6 @@
-CC = gcc
+CC = arm-none-eabi-gcc
 CFLAGS = -O
-AR = ar
+AR = arm-none-eabi-ar
 ARFLAGS = ru
 RANLIB = ranlib
 RM = rm

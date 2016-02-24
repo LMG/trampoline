@@ -20,7 +20,7 @@
 
 int current_node[TASK_COUNT] = {0};
 
-FUNC(StatusType, OS_CODE) compute_NEFT(
+FUNC(void, OS_CODE) compute_NEFT(
   void* param1,
   void* param2,
   void* param3,
@@ -53,26 +53,24 @@ FUNC(StatusType, OS_CODE) compute_NEFT(
 
 }
 
-FUNC(StatusType, OS_CODE) slow_task(
+FUNC(void, OS_CODE) slow_task(
   void* param1,
   void* param2,
   void* param3,
   CONST(int, AUTOMATIC) service_id)
 {
   if(tpl_kern.elected_id >= 0 && tpl_kern.elected_id < TASK_COUNT) {
-    int post;
     transition* outgoing_transition = get_outgoing_transition(
       param1,
       param2,
       param3,
       service_id);
 
-    DOW_DO(printf("Slowing task %d from %u to %u, (sc = %d, post = %d, %d)\n",
+    DOW_DO(printf("Slowing task %d from %u to %u, (sc = %d, %d)\n",
       tpl_kern.elected_id,
       (unsigned int)tpl_get_tptimer(),
       (unsigned int)outgoing_transition->eft,
       service_id,
-      post,
       current_node[tpl_kern.elected_id]);)
     while ( tpl_get_tptimer() < outgoing_transition->eft );
     DOW_DO(printf("Slowed task %d to %u > %u (%d)\n",
@@ -86,7 +84,7 @@ FUNC(StatusType, OS_CODE) slow_task(
   }
 }
 
-FUNC(StatusType, OS_CODE) update_model(
+FUNC(void, OS_CODE) update_model(
   transition* outgoing_transition)
 {
   if(tpl_kern.elected_id >= 0 && tpl_kern.elected_id < TASK_COUNT) {

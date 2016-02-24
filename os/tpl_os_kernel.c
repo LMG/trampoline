@@ -39,6 +39,11 @@
 #include "tpl_os_resource_kernel.h"
 #include "tpl_os_task.h"
 
+/* Control
+ * TODO: conditional 
+ */
+#include "tpl_control.h"
+
 #if WITH_STACK_MONITORING == YES
 #include "tpl_as_stack_monitor.h"
 #endif
@@ -55,7 +60,6 @@
 #define OS_START_SEC_CONST_UNSPECIFIED
 #include "tpl_memmap.h"
 
-#include "tpl_control.h"
 
 /**
  * @def INVALID_PROC

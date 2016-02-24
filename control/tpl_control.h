@@ -24,8 +24,6 @@
 #include "tpl_os_event.h"
 #include "tpl_os_event_kernel.h"
 
-#include "tpl_memmap.h"
-
 #include "tpl_dow.h"
 
 //maximum number of transitions after a given node
@@ -51,17 +49,17 @@ typedef struct {
   void* param3;
 } transition;
 
-FUNC(StatusType, OS_CODE) compute_NEFT(
+FUNC(void, OS_CODE) compute_NEFT(
   void* param1,
   void* param2,
   void* param3,
   CONST(int, AUTOMATIC) service_id);
-FUNC(StatusType, OS_CODE) slow_task(
+FUNC(void, OS_CODE) slow_task(
   void* param1,
   void* param2,
   void* param3,
   CONST(int, AUTOMATIC) service_id);
-FUNC(StatusType, OS_CODE) update_model(
+FUNC(void, OS_CODE) update_model(
   transition* outgoing_transition);
 FUNC(transition*, OS_CODE) get_outgoing_transition(
   void* param1,
