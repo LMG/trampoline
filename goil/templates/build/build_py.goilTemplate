@@ -258,6 +258,12 @@ cSourceList.append(projfile.ProjectFile("% !path.file::VALUE %", trampoline_base
   end foreach
 end if
 
+if exists OS::TIMINGPROTECTION default (false) then
+%
+cSourceList.append(projfile.ProjectFile("autosar/tpl_as_timing_protec.c", trampoline_base_path))
+cSourceList.append(projfile.ProjectFile("autosar/tpl_as_protec_hook.c", trampoline_base_path))%
+end if
+
 foreach module in exists OS::KERNEL_MODULE default (emptylist)
 do
   if exists KERNEL_MAP[module::VALUE] then

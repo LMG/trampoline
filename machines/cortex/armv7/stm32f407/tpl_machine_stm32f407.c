@@ -30,6 +30,7 @@
 #include "tpl_os_std_types.h"
 #include "tpl_machine.h"
 
+#include "tpl_as_timing_protec.h"
 
 #define OS_START_SEC_CODE
 #include "tpl_memmap.h"
@@ -54,3 +55,4 @@ FUNC(uint32, OS_CODE) tpl_get_tptimer()
 }
 #define OS_STOP_SEC_CODE
 #include "tpl_memmap.h"
+
