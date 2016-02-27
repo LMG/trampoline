@@ -13,7 +13,14 @@
 	/* Exception call to the service : use SVC exception */
 % !api_func::NAME %_exception_call:
 	mov r3,#% !api_sec::ID_PREFIX %ServiceId_% !api_func::NAME %
+  /* Runtime enforcement: save r0 thru r3 (parameters + syscall id) */
+  push {r0-r3}
+  b slow_task /* slow the task and update the model */
 	svc #% !api_sec::ID_PREFIX %ServiceId_% !api_func::NAME %
+  str r0, [sp,#16] /* save the return value  on top of the stack*/
+  pop {r0-r3} /* restore the parameters + syscall id */
+  b compute_NEFT /* compute the NEFT */
+  pop {r0} /* restore r0, the return value of the syscall */
 	b % !api_func::NAME %_exit_call
 	/* Procedural call to the service */
 % !api_func::NAME %_direct_call:

@@ -44,6 +44,16 @@ FUNC(void, OS_CODE) tpl_set_systick_timer()
 	}
 }
 
+FUNC(void, OS_CODE) tpl_set_tpwatchdog (CONST(tpl_time, AUTOMATIC) delay)
+{
+
+}
+
+FUNC(void, OS_CODE) tpl_cancel_tpwatchdog (CONST(tpl_time, AUTOMATIC) delay)
+{
+
+}
+
 FUNC(uint32, OS_CODE) tpl_get_tptimer()
 {
   /*
@@ -53,6 +63,8 @@ FUNC(uint32, OS_CODE) tpl_get_tptimer()
    */
    return (((SystemCoreClock / 1000) - 1) - SysTick->VAL) / 42 + 4000 * tpl_time_counter;
 }
+
+
 #define OS_STOP_SEC_CODE
 #include "tpl_memmap.h"
 
