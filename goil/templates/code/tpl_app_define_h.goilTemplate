@@ -102,6 +102,14 @@ end if
 #define WITH_MODULES_INIT                NO
 #define WITH_INIT_BOARD                  % !yesNo(exists OS::INITBOARD default (false)) %
 
+%
+foreach module in exists OS::KERNEL_MODULE default (emptylist)
+do
+  if module::VALUE == "kernel_control" then %
+#define WITH_CONTROL                     YES
+% end if
+end foreach%
+
 
 /*=============================================================================
  * Defines related to the key part of a ready list entry.
