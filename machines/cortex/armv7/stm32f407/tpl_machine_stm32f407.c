@@ -86,12 +86,12 @@ FUNC(void, OS_CODE) tpl_set_tpwatchdog (CONST(tpl_time, AUTOMATIC) delay)
  * TIM2 interrupt handler
  * It is called by the interrupt vector
  */
-FUNC(void, OS_CODE) TIM2_IRQHandler(void)
+FUNC(void, OS_CODE) TIM2_IRQ_Handler(void)
 {
   if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
   {
-    TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
     tpl_watchdog_expiration(); //This function is defined in ~/autosar/tpl_as_timing_protec.c
+    TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
   }
 }
 

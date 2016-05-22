@@ -24,6 +24,11 @@ IMPLEMENTATION thumb2_ressource {
   INTERRUPT_COUNT {
     UINT32 IT_TABLE_SIZE;
   };
+
+  /* Interrupt type for timing protection */
+  OS_INTERNAL_INTERRUPT {
+    INTERRUPT_TYPE TIMINGPROTECTIONINTERRUPT;
+  };
 };
 
 CPU thumb2_ressource {

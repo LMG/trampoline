@@ -4,6 +4,17 @@
 #
 let objForIRQ := emptymap
 
+# Timing protection interrupts
+if OS::TIMINGPROTECTION then
+  let internalInterrupt := emptymap
+  let internalInterrupt[OS_INTERNAL_INTERRUPT::TIMINGPROTECTIONINTERRUPT] := OS_INTERNAL_INTERRUPT::TIMINGPROTECTIONINTERRUPT
+  let objForIRQ[OS_INTERNAL_INTERRUPT::TIMINGPROTECTIONINTERRUPT] := emptylist
+  let objSource::SOURCE := OS_INTERNAL_INTERRUPT::TIMINGPROTECTIONINTERRUPT
+  let objSource::NAME := "timing_protection"
+  let objSource::KIND := "INTERNAL" # Internal to the operating system
+  let objForIRQ[OS_INTERNAL_INTERRUPT::TIMINGPROTECTIONINTERRUPT] += objSource
+end if
+
 # Map ISR into objForIRQ
 foreach isr in ISR do
   let key := isr::SOURCE

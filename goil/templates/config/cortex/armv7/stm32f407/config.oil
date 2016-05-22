@@ -139,4 +139,8 @@ CPU stm32f407 {
       POSTOPTION = "0x8000000";
     };
   };
+
+  OS_INTERNAL_INTERRUPT config {
+    TIMINGPROTECTIONINTERRUPT = TIM2_IRQ;
+  };
 };

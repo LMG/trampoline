@@ -5,11 +5,36 @@
 #include "tpl_machine.h"
 %
 
+let objForIRQ := emptymap
+
+#------------------------------------------------------------------------------*
+# Timing protection interrupts
+# Safety checks (interrupts already in use)
+#
+if OS::TIMINGPROTECTION then
+  let internalInterrupt := emptymap
+  let internalInterrupt[OS_INTERNAL_INTERRUPT::TIMINGPROTECTIONINTERRUPT] := OS_INTERNAL_INTERRUPT::TIMINGPROTECTIONINTERRUPT
+  let objForIRQ[OS_INTERNAL_INTERRUPT::TIMINGPROTECTIONINTERRUPT] := emptylist
+  let objSource::SOURCE := OS_INTERNAL_INTERRUPT::TIMINGPROTECTIONINTERRUPT
+  let objForIRQ[OS_INTERNAL_INTERRUPT::TIMINGPROTECTIONINTERRUPT] += objSource
+
+  foreach isr in ISR do
+    if exists internalInterrupt[isr::SOURCE] then
+      error isr::SOURCE : "Interrupt source already in use for timing protection"
+    end if
+  end foreach
+
+  foreach counter in COUNTER do
+    if exists internalInterrupt[counter::SOURCE] then
+      error counter::SOURCE : "Interrupt source already in use for timing protection"
+    end if
+  end foreach
+end if
+
 #------------------------------------------------------------------------------*
 # Target specific initializations
 # build the maps for IRQ
 #
-let objForIRQ := emptymap
 
 # Map ISR into objForIRQ
 foreach isr in ISR do
