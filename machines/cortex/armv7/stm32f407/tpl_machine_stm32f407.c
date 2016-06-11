@@ -36,9 +36,11 @@
 
 #include "tpl_as_timing_protec.h"
 
+#endif /* WITH_AUTOSAR_TIMING_PROTECTION */
+
+
 #define OS_START_SEC_CODE
 #include "tpl_memmap.h"
-extern volatile uint32 tpl_time_counter;
 
 FUNC(void, OS_CODE) tpl_set_systick_timer()
 {
@@ -47,6 +49,9 @@ FUNC(void, OS_CODE) tpl_set_systick_timer()
 		while(1);
 	}
 }
+
+#if WITH_AUTOSAR_TIMING_PROTECTION == YES
+extern volatile uint32 tpl_time_counter;
 
 FUNC(void, OS_CODE) tpl_set_tpwatchdog (CONST(tpl_time, AUTOMATIC) delay)
 {

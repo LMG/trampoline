@@ -13,6 +13,13 @@
 	/* Exception call to the service : use SVC exception */
 % !api_func::NAME %_exception_call:
 	mov r3,#% !api_sec::ID_PREFIX %ServiceId_% !api_func::NAME %
+% let WITH_KERNEL_CONTROL := false
+  foreach module in exists OS::KERNEL_MODULE default (emptylist) do
+    if module::VALUE == "kernel_control" then
+      let WITH_KERNEL_CONTROL := true
+    end if
+  end foreach
+  if WITH_KERNEL_CONTROL then %
   /* Runtime enforcement: save r0 thru r3 (parameters + syscall id) */
   push {r0-r3}
   b slow_task /* slow the task and update the model */
@@ -21,6 +28,9 @@
   pop {r0-r3} /* restore the parameters + syscall id */
   b compute_NEFT /* compute the NEFT */
   pop {r0} /* restore r0, the return value of the syscall */
+% else %
+	svc #% !api_sec::ID_PREFIX %ServiceId_% !api_func::NAME %
+% end if %
 	b % !api_func::NAME %_exit_call
 	/* Procedural call to the service */
 % !api_func::NAME %_direct_call:

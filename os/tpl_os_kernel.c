@@ -738,6 +738,8 @@ FUNC(void, OS_CODE) tpl_start(CORE_ID_OR_VOID(core_id))
     TPL_KERN_REF(kern).elected->state = (tpl_proc_state)READY;
 #endif
 
+    
+#if WITH_CONTROL == YES
     //TODO: move to tpl_run_elected (especially if we want multi-core support)
     if(TPL_KERN_REF(kern).elected_id != INVALID_TASK) // it's not the IDLE task
     {
@@ -748,6 +750,7 @@ FUNC(void, OS_CODE) tpl_start(CORE_ID_OR_VOID(core_id))
         START_TASK));
       compute_NEFT(NULL, NULL, NULL, START_TASK);
     }
+#endif
   }
 
   DOW_DO(print_kern("after tpl_start"));
